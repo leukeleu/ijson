@@ -146,6 +146,27 @@ class Parse(object):
         self.backend.basic_parse(BytesIO(INVALID_JSON))
         self.assertTrue(True)
 
+    def test_exponent(self):
+        """
+        Test the parsing of exponents; some valid exponents are:
+        - with 'e': 1e2
+        - with 'E': 1E2
+        - with dot: 1.0e2
+
+        Also see diagram at json.org
+        """
+        def parse_decimal(value):
+            events = list(self.backend.basic_parse(BytesIO(value)))
+            self.assertEqual(events, [('number', Decimal(value))])
+
+        parse_decimal(b'1.0e2')
+        parse_decimal(b'1e2')
+        parse_decimal(b'1E2')
+        parse_decimal(b'1.0E2')
+        parse_decimal(b'-1e2')
+        parse_decimal(b'1e+2')
+        parse_decimal(b'1e-2')
+
 # Generating real TestCase classes for each importable backend
 for name in ['python', 'yajl', 'yajl2']:
     try:
